@@ -3,7 +3,7 @@
 
 **从0到1的社交电商完整复盘 | 基于2020年真实交易数据**
 
-[**🌐 点击查看在线演示 (Click Here)**](https://chemiui.github.io/Northridge_Digital/)
+[**🌐 点击查看在线交互网站演示 (Click Here)**](https://chemiui.github.io/Northridge_Digital/)
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub-Pages-blue?logo=github)](https://xn--6qqv7i14ofosyrb.github.io/仓库名/)
 
