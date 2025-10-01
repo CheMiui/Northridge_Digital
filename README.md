@@ -112,7 +112,7 @@ lingbei-digital/
 
 ### 在线访问
 
-直接访问 GitHub Pages：[https://你的用户名.github.io/仓库名/](https://xn--6qqv7i14ofosyrb.github.io/仓库名/)
+直接访问 GitHub Pages：[[https://Chemiui.github.io/Northridge_Digital/](https://chemiui.github.io/Northridge_Digital/)]
 
 ### 本地运行
 
@@ -178,7 +178,7 @@ php -S localhost:8000
 如有问题或建议，欢迎通过以下方式联系：
 
 - GitHub Issues
-- Email: [your@email.com](mailto:your@email.com)
+- Email: [cmh001116@163.com](mailto:cmh001116@163.com)
 
 ------
 
