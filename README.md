@@ -192,5 +192,5 @@ php -S localhost:8000
 
 **Built with 💙 and data-driven thinking**
 
-[⬆ 回到顶部]([https://github.com/chemiui/Northridge_Digital/raw/main/README.md/])
+[⬆ 回到顶部](https://github.com/chemiui/Northridge_Digital/raw/main/README.md/)
 
