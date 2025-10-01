@@ -192,5 +192,5 @@ php -S localhost:8000
 
 **Built with 💙 and data-driven thinking**
 
-[⬆ 回到顶部](https://chatgpt.com/g/g-p-68d072ea83e08191b18b812a82013e99-qiu-zhao/c/68dc28a8-ec94-8333-a846-837039c7e1eb#岭北数码---数据驱动的电商实战案例)
+[⬆ 回到顶部]([https://github.com/chemiui/Northridge_Digital/raw/main/README.md])
 
