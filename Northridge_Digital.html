@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>岭北数码 - 数据驱动的电商实战</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+            background: linear-gradient(135deg, #091231 0%, #0A081B 50%, #091231 100%);
+            color: #E0E4E6;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 30%, rgba(22, 255, 187, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(41, 221, 218, 0.08) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(55, 167, 231, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 4rem;
+            right: 2rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .nav-button {
+            padding: 0.8rem 1.8rem;
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(22, 255, 187, 0.3);
+            border-radius: 50px;
+            color: #16FFBB;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px rgba(22, 255, 187, 0);
+        }
+
+        .nav-button:hover {
+            background: rgba(22, 255, 187, 0.1);
+            border-color: #16FFBB;
+            box-shadow: 0 0 30px rgba(22, 255, 187, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 4rem 2rem;
+        }
+
+        .hero h1 {
+            font-size: 5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #F0FCFF;
+            letter-spacing: -2px;
+            text-shadow: 0 0 40px rgba(22, 255, 187, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #E0E4E6;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-meta {
+            font-size: 1rem;
+            color: rgba(224, 228, 230, 0.6);
+            margin-bottom: 4rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .glass-card {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(22, 255, 187, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(22, 255, 187, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .glass-card:hover::before {
+            opacity: 1;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(22, 255, 187, 0.3), 0 0 60px rgba(22, 255, 187, 0.2);
+            border-color: #16FFBB;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #16FFBB;
+            text-shadow: 0 0 20px rgba(22, 255, 187, 0.5);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #E0E4E6;
+            font-weight: 400;
+        }
+
+        .section {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #F0FCFF;
+            text-shadow: 0 0 30px rgba(22, 255, 187, 0.3);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: rgba(224, 228, 230, 0.7);
+            font-size: 1.1rem;
+            font-weight: 400;
+            margin-bottom: 4rem;
+        }
+
+        .chart-container {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 3rem;
+            border: 1px solid rgba(41, 221, 218, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin: 2rem 0;
+            position: relative;
+            height: 450px;
+        }
+
+        .timeline-container {
+            position: relative;
+            overflow-x: auto;
+            padding: 2rem 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(22, 255, 187, 0.5) transparent;
+        }
+
+        .timeline-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .timeline-container::-webkit-scrollbar-track {
+            background: rgba(10, 8, 27, 0.4);
+            border-radius: 10px;
+        }
+
+        .timeline-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #16FFBB, #29DDDA);
+            border-radius: 10px;
+        }
+
+        .timeline-track {
+            display: flex;
+            gap: 2rem;
+            padding: 2rem 0;
+            min-width: max-content;
+        }
+
+        .timeline-item {
+            min-width: 300px;
+            max-width: 300px;
+        }
+
+        .timeline-card {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(22, 255, 187, 0.15);
+            transition: all 0.4s ease;
+            height: 100%;
+            position: relative;
+        }
+
+        .timeline-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(22, 255, 187, 0.2);
+            transform: translate(-50%, -50%);
+            transition: all 0.4s ease;
+        }
+
+        .timeline-card:hover::after {
+            width: 100%;
+            height: 100%;
+        }
+
+        .timeline-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(22, 255, 187, 0.4);
+            border-color: #16FFBB;
+        }
+
+        .timeline-date {
+            color: #16FFBB;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 0.8rem;
+            color: #F0FCFF;
+            position: relative;
+            z-index: 1;
+        }
+
+        .timeline-desc {
+            font-size: 0.95rem;
+            color: rgba(224, 228, 230, 0.8);
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.8rem 2rem;
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(22, 255, 187, 0.2);
+            border-radius: 50px;
+            color: #E0E4E6;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover {
+            background: rgba(22, 255, 187, 0.1);
+            border-color: #16FFBB;
+            color: #16FFBB;
+            box-shadow: 0 0 20px rgba(22, 255, 187, 0.3);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, rgba(22, 255, 187, 0.2), rgba(41, 221, 218, 0.2));
+            border-color: #16FFBB;
+            color: #16FFBB;
+            box-shadow: 0 0 30px rgba(22, 255, 187, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, rgba(22, 255, 187, 0.2), rgba(41, 221, 218, 0.2));
+        }
+
+        .data-table th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #F0FCFF;
+            border-bottom: 1px solid rgba(22, 255, 187, 0.2);
+        }
+
+        .data-table th:first-child {
+            border-radius: 12px 0 0 0;
+        }
+
+        .data-table th:last-child {
+            border-radius: 0 12px 0 0;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(22, 255, 187, 0.05);
+        }
+
+        .data-table td {
+            padding: 1rem;
+            font-size: 0.9rem;
+            color: #E0E4E6;
+            border-bottom: 1px solid rgba(22, 255, 187, 0.05);
+        }
+
+        .highlight-green {
+            color: #16FFBB;
+            font-weight: 600;
+        }
+
+        .highlight-orange {
+            color: #29DDDA;
+            font-weight: 600;
+        }
+
+        .bubble-chart {
+            position: relative;
+            height: 550px;
+            background: rgba(10, 8, 27, 0.3);
+            border-radius: 20px;
+            padding: 3rem;
+        }
+
+        .bubble-3d {
+            position: absolute;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #F0FCFF;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4),
+                        inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                        inset 0 5px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .bubble-3d::before {
+            content: '';
+            position: absolute;
+            top: 15%;
+            left: 20%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
+        .bubble-3d:hover {
+            transform: scale(1.2) translateY(-10px);
+            box-shadow: 0 20px 60px rgba(22, 255, 187, 0.6),
+                        0 0 80px rgba(22, 255, 187, 0.4),
+                        inset 0 -5px 20px rgba(0, 0, 0, 0.3),
+                        inset 0 5px 20px rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .bubble-name {
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .bubble-data {
+            font-size: 0.75rem;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .method-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .method-card {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(41, 221, 218, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .method-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(41, 221, 218, 0.4);
+            border-color: #29DDDA;
+        }
+
+        .method-title {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #F0FCFF;
+        }
+
+        .method-content {
+            font-size: 0.95rem;
+            color: rgba(224, 228, 230, 0.8);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .method-insight {
+            background: linear-gradient(135deg, rgba(22, 255, 187, 0.1), rgba(41, 221, 218, 0.1));
+            padding: 1.2rem;
+            border-radius: 12px;
+            border-left: 3px solid #16FFBB;
+            font-size: 0.9rem;
+            color: #E0E4E6;
+            line-height: 1.7;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, rgba(22, 255, 187, 0.15), rgba(55, 167, 231, 0.15));
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            border: 1px solid rgba(22, 255, 187, 0.3);
+            transition: all 0.4s ease;
+            text-align: center;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(22, 255, 187, 0.5);
+            border-color: #16FFBB;
+        }
+
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #16FFBB;
+            text-shadow: 0 0 30px rgba(22, 255, 187, 0.6);
+        }
+
+        .metric-label {
+            font-size: 1rem;
+            color: #E0E4E6;
+            font-weight: 400;
+        }
+
+        .metric-change {
+            font-size: 0.85rem;
+            color: rgba(224, 228, 230, 0.6);
+            margin-top: 0.5rem;
+        }
+
+        .insight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .insight-card {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(22, 255, 187, 0.15);
+            transition: all 0.4s ease;
+        }
+
+        .insight-card:hover {
+            transform: translateY(-5px);
+            border-color: #16FFBB;
+            box-shadow: 0 16px 48px rgba(22, 255, 187, 0.3);
+        }
+
+        .insight-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            color: #16FFBB;
+        }
+
+        .insight-content {
+            font-size: 0.95rem;
+            color: rgba(224, 228, 230, 0.8);
+            line-height: 1.8;
+        }
+
+        .comparison-table {
+            background: rgba(10, 8, 27, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(41, 221, 218, 0.2);
+            overflow: hidden;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 150px 1fr 1fr 120px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(22, 255, 187, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .comparison-row:hover {
+            background: rgba(22, 255, 187, 0.05);
+        }
+
+        .comparison-row:first-child {
+            background: linear-gradient(135deg, rgba(22, 255, 187, 0.15), rgba(41, 221, 218, 0.15));
+            border-radius: 12px;
+            font-weight: 600;
+            color: #F0FCFF;
+        }
+
+        .impact-value {
+            color: #16FFBB;
+            font-weight: 600;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: rgba(224, 228, 230, 0.5);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(22, 255, 187, 0.1);
+        }
+
+        .footer-name {
+            color: #16FFBB;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 3rem; }
+            .section-title { font-size: 2rem; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .method-grid, .metrics-grid, .insight-grid {
+                grid-template-columns: 1fr;
+            }
+            .comparison-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+            .top-nav {
+                top: 1rem;
+                right: 1rem;
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <a href="https://01-dqv4abh.gamma.site/" class="nav-button">分析报告</a>
+        <a href="#" class="nav-button">数据来源</a>
+    </div>
+
+    <div class="hero">
+        <div class="container">
+            <h1>岭北数码</h1>
+            <div class="hero-subtitle">数据驱动的电商实战项目复盘</div>
+            <div class="hero-meta">2020.05 - 2022.03 | 基于410单真实交易数据</div>
+            
+            <div class="stats-grid">
+                <div class="glass-card" style="animation-delay: 0.1s;">
+                    <div class="stat-value">410</div>
+                    <div class="stat-label">总订单数</div>
+                </div>
+                <div class="glass-card" style="animation-delay: 0.2s;">
+                    <div class="stat-value">93K</div>
+                    <div class="stat-label">总销售额</div>
+                </div>
+                <div class="glass-card" style="animation-delay: 0.3s;">
+                    <div class="stat-value">17.7K</div>
+                    <div class="stat-label">总利润</div>
+                </div>
+                <div class="glass-card" style="animation-delay: 0.4s;">
+                    <div class="stat-value">19%</div>
+                    <div class="stat-label">平均利润率</div>
+                </div>
+                <div class="glass-card" style="animation-delay: 0.5s;">
+                    <div class="stat-value">644%</div>
+                    <div class="stat-label">增长率</div>
+                </div>
+                <div class="glass-card" style="animation-delay: 0.6s;">
+                    <div class="stat-value">75.6%</div>
+                    <div class="stat-label">引流成功率</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">业绩增长轨迹</h2>
+            <p class="section-subtitle">从首月9单到月均60+单的系统化增长</p>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">644%</div>
+                    <div class="metric-label">订单增长率</div>
+                    <div class="metric-change">5月-8月 | 9单→67单</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">¥3,039</div>
+                    <div class="metric-label">峰值月利润</div>
+                    <div class="metric-change">2020年10月</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">20.77%</div>
+                    <div class="metric-label">最高利润率</div>
+                    <div class="metric-change">持续优化成果</div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="growthChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">关键里程碑</h2>
+            <p class="section-subtitle">从0到1的完整路径</p>
+
+            <div class="timeline-container">
+                <div class="timeline-track">
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2020.05</div>
+                            <div class="timeline-title">冷启动</div>
+                            <div class="timeline-desc">通过闲鱼认识供应商，第一天成功开单urBeats3，验证商业模式</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2020.06-07</div>
+                            <div class="timeline-title">数据驱动</div>
+                            <div class="timeline-desc">AB测试拍摄场景，发现室外场景询盘率提升150%</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2020.07-09</div>
+                            <div class="timeline-title">私域搭建</div>
+                            <div class="timeline-desc">日均3-5单稳定出单，引流成功率达75.6%</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2020.10</div>
+                            <div class="timeline-title">供应链升级</div>
+                            <div class="timeline-desc">投入3000元首次囤货，全部售罄验证判断</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2021年前</div>
+                            <div class="timeline-title">成本优化</div>
+                            <div class="timeline-desc">实地前往华强北谈判，成本降低15%</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2021.03</div>
+                            <div class="timeline-title">KOC网络</div>
+                            <div class="timeline-desc">发展第二批代理，建立培训SOP</div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="timeline-date">2021.04+</div>
+                            <div class="timeline-title">规模化</div>
+                            <div class="timeline-desc">月利润突破8000-10000+，实现规模化运营</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">产品矩阵分析</h2>
+            <p class="section-subtitle">基于真实数据的产品结构与盈利模型</p>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('table')">数据表格</button>
+                <button class="tab" onclick="switchTab('bubble')">气泡分析</button>
+                <button class="tab" onclick="switchTab('pie')">销售占比</button>
+            </div>
+
+            <div id="table" class="tab-content active">
+                <div class="glass-card">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>产品名称</th>
+                                <th>销量</th>
+                                <th>平均单价</th>
+                                <th>平均利润</th>
+                                <th>总销售额</th>
+                                <th>总利润</th>
+                                <th>利润率</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="bubble" class="tab-content">
+                <div class="glass-card">
+                    <div class="bubble-chart" id="bubbleChart"></div>
+                </div>
+                <div style="text-align: center; margin-top: 2rem; color: rgba(224, 228, 230, 0.6);">
+                    气泡大小代表销量 | X轴: 平均售价 | Y轴: 利润率
+                </div>
+            </div>
+
+            <div id="pie" class="tab-content">
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+
+            <h2 class="section-title">支付与引流数据</h2>
+            <p class="section-subtitle">微信支付占比与私域引流成功率的关联分析</p>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 3rem; margin: 3rem 0;">
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 2rem; color: #F0FCFF; text-align: center;">支付方式分布</h3>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(22, 255, 187, 0.05); border-radius: 12px; border-left: 3px solid #16FFBB;">
+                        <div style="font-size: 0.95rem; color: #E0E4E6; line-height: 1.8;">
+                            <strong style="color: #16FFBB;">关键洞察：</strong> 微信支付占比30.7%，反映私域运营成效。微信支付客户多为私域转化，虽客单价略低(¥220 vs ¥230)，但复购率高3倍以上。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card">
+                    <h3 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 2rem; color: #F0FCFF; text-align: center;">引流成功率</h3>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="conversionChart"></canvas>
+                    </div>
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(41, 221, 218, 0.05); border-radius: 12px; border-left: 3px solid #29DDDA;">
+                        <div style="font-size: 0.95rem; color: #E0E4E6; line-height: 1.8;">
+                            <strong style="color: #29DDDA;">关键洞察：</strong> 引流成功率75.6%，310位客户成功转入私域。通过"微信下单更便捷+专属售后"的价值主张，降低平台依赖风险。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card" style="margin-top: 3rem;">
+                <h3 style="font-size: 1.3rem; font-weight: 500; margin-bottom: 1.5rem; color: #F0FCFF;">私域运营的数据证明</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(22, 255, 187, 0.05); border-radius: 12px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #16FFBB; margin-bottom: 0.5rem;">30.7%</div>
+                        <div style="font-size: 0.9rem; color: #E0E4E6;">微信支付占比</div>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(41, 221, 218, 0.05); border-radius: 12px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #29DDDA; margin-bottom: 0.5rem;">75.6%</div>
+                        <div style="font-size: 0.9rem; color: #E0E4E6;">引流成功率</div>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(55, 167, 231, 0.05); border-radius: 12px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #37A7E7; margin-bottom: 0.5rem;">310+</div>
+                        <div style="font-size: 0.9rem; color: #E0E4E6;">私域客户数</div>
+                    </div>
+                    <div style="text-align: center; padding: 1.5rem; background: rgba(255, 179, 71, 0.05); border-radius: 12px;">
+                        <div style="font-size: 2.5rem; font-weight: 700; color: #FFB347; margin-bottom: 0.5rem;">35%</div>
+                        <div style="font-size: 0.9rem; color: #E0E4E6;">私域复购率</div>
+                    </div>
+                </div>
+                <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(22, 255, 187, 0.08), rgba(41, 221, 218, 0.08)); border-radius: 12px;">
+                    <div style="font-size: 1rem; color: #E0E4E6; line-height: 1.8;">
+                        <strong style="color: #16FFBB;">数据关联：</strong> 微信支付占比(30.7%)与引流成功率(75.6%)形成正相关。成功引流的310位客户中，约126位通过微信支付完成交易，验证了私域运营策略的有效性。这些客户不仅降低了平台依赖风险，在禁言期私域订单占比更达到60%+，确保业务连续性。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+            <h2 class="section-title">核心方法论</h2>
+            <p class="section-subtitle">可复制的商业思维框架</p>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-title">渐进式风险控制</div>
+                    <div class="method-content">
+                        代发验证(0成本) → 小额试水(3k) → 批量采购 → 渠道议价。不是一开始就追求规模，而是用最小成本验证假设。每一步都基于上一步的数据反馈。
+                    </div>
+                    <div class="method-insight">
+                        在没有任何亏损的情况下，用3个月积累了第一个1万元利润
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">公私域联动飞轮</div>
+                    <div class="method-content">
+                        平台曝光(闲鱼) → 流量转化(微信) → 私域运营(朋友圈) → 复购裂变 → 口碑增长。75.6%的引流成功率来自明确的价值主张：微信下单更便捷+专属售后。
+                    </div>
+                    <div class="method-insight">
+                        私域客户的复购率是平台客户的7倍，用户资产比流量更有价值
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">数据驱动快速迭代</div>
+                    <div class="method-content">
+                        假设提出 → AB测试 → 数据分析 → 优化迭代 → 固化标准 → 规模推广。室外场景询盘率提升150%来自对20+场景的系统测试。
+                    </div>
+                    <div class="method-insight">
+                        不是凭感觉做运营，而是让数据告诉我什么有效
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">信任构建体系</div>
+                    <div class="method-content">
+                        产品真实性(实拍+验证) → 响应速度(5分钟) → 专业度(深度解答) → 售后承诺 → 持续触达。最难忘的是一个暴怒客户，通过专业分析最终转化为好评。
+                    </div>
+                    <div class="method-insight">
+                        信任不是靠话术，而是靠专业和真诚
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">能力沉淀</h2>
+            <p class="section-subtitle">从实战中提炼的核心竞争力</p>
+
+            <div class="insight-grid">
+                <div class="insight-card">
+                    <div class="insight-title">市场洞察力</div>
+                    <div class="insight-content">
+                        发现Beats品牌在学生群体中的"社交货币"属性，品牌溢价远超技术价值。对比Sony、Bose等技术型品牌，精准锁定目标客群真实需求。第一天开单，3个月纯利润1万元。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-title">数据分析能力</div>
+                    <div class="insight-content">
+                        AB测试20+拍摄场景，发现室外场景询盘率提升150%。建立简易数据看板，监控曝光-询盘-转化-利润全链路。账号权重高，常上首页。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-title">快速学习能力</div>
+                    <div class="insight-content">
+                        从零开始，2个月内掌握闲鱼运营机制。从冷启动到月利润过万仅用4个月。订单数从9单增长到67单，增长644%。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-title">客户服务意识</div>
+                    <div class="insight-content">
+                        冷静处理暴怒客户，将投诉转化为好评。建立5分钟快速响应机制，提供便捷售后服务。好评率95%+，私域复购率35%。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-title">风险控制思维</div>
+                    <div class="insight-content">
+                        渐进式投入，从代发到3000元囤货再到批量采购。只囤畅销低价款，建立私域备份降低平台依赖。零滞销，始终保持正现金流。
+                    </div>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-title">系统化思维</div>
+                    <div class="insight-content">
+                        构建选品-运营-转化-复购-裂变完整闭环。建立SOP培训第二批代理，实现模式复制。第二批代理月均15单，渠道占比30%。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">关键决策</h2>
+            <p class="section-subtitle">重要决策时刻与思考过程</p>
+
+            <div class="method-grid">
+                <div class="method-card">
+                    <div class="method-title">为什么选择Beats</div>
+                    <div class="method-content">
+                        作为数码爱好者，发现Beats在学生群体中异常受欢迎，但音质评价一般。对比Sony、Bose等技术型品牌，发现目标用户对音质要求不高，但对社交标签需求极强。
+                    </div>
+                    <div class="method-insight">
+                        品牌溢价 > 技术价值 = 利润空间大。第一天开单验证了市场判断。
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">什么时候开始囤货</div>
+                    <div class="method-content">
+                        2020年10月，累计利润接近1万元。囤货有库存风险，但能降低成本提高利润率。已有3个月销售数据，明确知道哪些产品畅销。
+                    </div>
+                    <div class="method-insight">
+                        只囤urBeats3和Flex两款低价高频产品，3000元全部售罄，利润率从15%提升至20%+。
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">为什么要建私域</div>
+                    <div class="method-content">
+                        2020年7月因违禁词被禁言7天，订单骤降。意识到过度依赖单一平台的风险。很多客户有重复购买需求，但闲鱼搜索不到店铺。
+                    </div>
+                    <div class="method-insight">
+                        引流成功率75.6%，私域客户200+。禁言期私域订单占比60%+，业务不受影响。
+                    </div>
+                </div>
+
+                <div class="method-card">
+                    <div class="method-title">如何定价平衡量利</div>
+                    <div class="method-content">
+                        设计三层价格体系：¥100入门款(ub3)高利润率30%+建立信任，¥200-250主力款(bx)平衡销量与利润，¥300+高端款(H700)走量贡献销售额。
+                    </div>
+                    <div class="method-insight">
+                        三层结构支撑了整体利润率19.03%，低价款引流+主力款赚钱+高端款撑场。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="container">
+            <h2 class="section-title">优化方案</h2>
+            <p class="section-subtitle">站在今天的认知高度重新思考</p>
+
+            <div class="comparison-table">
+                <div class="comparison-row">
+                    <div>维度</div>
+                    <div>当时的做法</div>
+                    <div>现在的优化</div>
+                    <div>影响程度</div>
+                </div>
+                <div class="comparison-row">
+                    <div>数据管理</div>
+                    <div>简单记录订单和利润，缺乏系统分析</div>
+                    <div>建立完整数据看板：用户画像、转化漏斗、复购周期、LTV分析。用数据指导每个决策</div>
+                    <div class="impact-value">关键影响</div>
+                </div>
+                <div class="comparison-row">
+                    <div>品牌定位</div>
+                    <div>陷入价格战，无差异化定位</div>
+                    <div>打造"岭北数码"品牌IP：专业测评+潮流穿搭+学生优惠。从"卖货的"变成"懂数码的朋友"</div>
+                    <div class="impact-value">重要影响</div>
+                </div>
+                <div class="comparison-row">
+                    <div>内容运营</div>
+                    <div>单纯展示产品，缺乏内容沉淀</div>
+                    <div>建立内容矩阵：小红书种草+B站测评+公众号攻略。内容即流量，流量即资产</div>
+                    <div class="impact-value">关键影响</div>
+                </div>
+                <div class="comparison-row">
+                    <div>客户分层</div>
+                    <div>所有客户一视同仁，无差异化运营</div>
+                    <div>RFM模型分层：高价值客户专属优惠，沉默客户唤醒策略，新客户培育路径</div>
+                    <div class="impact-value">重要影响</div>
+                </div>
+                <div class="comparison-row">
+                    <div>代理管理</div>
+                    <div>缺乏系统培训和激励机制</div>
+                    <div>建立完整代理体系：标准化SOP+阶梯奖励+月度培训+优秀案例分享</div>
+                    <div class="impact-value">重要影响</div>
+                </div>
+                <div class="comparison-row">
+                    <div>供应链</div>
+                    <div>单一供应商，议价能力弱</div>
+                    <div>对接3-5家供应商，建立竞争机制。批量采购降低成本，提前锁定旺季货源</div>
+                    <div class="impact-value">一般影响</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 4rem; padding: 2.5rem; background: rgba(22, 255, 187, 0.1); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(22, 255, 187, 0.3);">
+                <div style="font-size: 1.3rem; font-weight: 500; margin-bottom: 1.5rem; color: #16FFBB;">最深刻的感悟</div>
+                <div style="font-size: 1.05rem; line-height: 1.9; color: #E0E4E6;">
+                    这个项目最大的价值不是赚了多少钱，而是让我理解了从0到1建立商业模式的完整过程。我学会了用数据说话、用实验验证假设、用系统化思维解决问题。更重要的是，我明白了失败是学习的一部分——第一次招代理失败、被平台禁言、处理客户投诉，每一次挫折都让我成长。
+                </div>
+                <div style="font-size: 1.05rem; line-height: 1.9; color: #E0E4E6; margin-top: 1.5rem;">
+                    如果用一句话总结：用最小成本验证假设，用数据驱动决策，用系统化思维实现规模化。这套方法论，适用于任何从0到1的项目。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div>项目主要负责人: <span class="footer-name">Michelle 陈美晖</span></div>
+    </footer>
+
+    <script>
+        const products = [
+            {name: 'bx黑红', count: 57, avgPrice: 238.6, avgProfit: 44.6, totalSales: 13600, totalProfit: 2540, margin: 18.68},
+            {name: 'H700蓝', count: 45, avgPrice: 305.0, avgProfit: 44.0, totalSales: 13725, totalProfit: 1980, margin: 14.43},
+            {name: 'bx银', count: 38, avgPrice: 225.5, avgProfit: 54.6, totalSales: 8569, totalProfit: 2075, margin: 24.21},
+            {name: 'H700绿', count: 36, avgPrice: 309.7, avgProfit: 44.7, totalSales: 11149, totalProfit: 1610, margin: 14.44},
+            {name: 'ub3黑红', count: 31, avgPrice: 130.6, avgProfit: 39.4, totalSales: 4050, totalProfit: 1220, margin: 30.12},
+            {name: 'pill 2.0白', count: 30, avgPrice: 253.3, avgProfit: 49.7, totalSales: 7600, totalProfit: 1490, margin: 19.61},
+            {name: 'pb3黑', count: 26, avgPrice: 184.6, avgProfit: 39.2, totalSales: 4800, totalProfit: 1020, margin: 21.25},
+            {name: 'bx黑', count: 23, avgPrice: 195.7, avgProfit: 31.1, totalSales: 4500, totalProfit: 715, margin: 15.89},
+            {name: 'bx白', count: 21, avgPrice: 215.0, avgProfit: 49.5, totalSales: 4515, totalProfit: 1040, margin: 23.03},
+            {name: 'H700黑', count: 14, avgPrice: 308.6, avgProfit: 37.1, totalSales: 4320, totalProfit: 520, margin: 12.04}
+        ];
+
+        function renderProductTable() {
+            const tbody = document.getElementById('productTableBody');
+            tbody.innerHTML = products.map(p => `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.count}件</td>
+                    <td>¥${p.avgPrice.toFixed(1)}</td>
+                    <td>¥${p.avgProfit.toFixed(1)}</td>
+                    <td>¥${p.totalSales.toLocaleString()}</td>
+                    <td class="${p.totalProfit >= 2000 ? 'highlight-orange' : ''}">¥${p.totalProfit.toLocaleString()}</td>
+                    <td class="${p.margin >= 25 ? 'highlight-green' : ''}">${p.margin.toFixed(2)}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderBubbleChart() {
+            const container = document.getElementById('bubbleChart');
+            container.innerHTML = '';
+            
+            const gradients = [
+                'radial-gradient(circle at 30% 30%, #16FFBB, #0FA88E)',
+                'radial-gradient(circle at 30% 30%, #29DDDA, #1AA8A8)',
+                'radial-gradient(circle at 30% 30%, #37A7E7, #2580BF)',
+                'radial-gradient(circle at 30% 30%, #FFB347, #E89320)',
+                'radial-gradient(circle at 30% 30%, #FF6B9D, #D64A7A)',
+                'radial-gradient(circle at 30% 30%, #A78BFA, #8B5CF6)',
+                'radial-gradient(circle at 30% 30%, #34D399, #10B981)',
+                'radial-gradient(circle at 30% 30%, #60A5FA, #3B82F6)',
+                'radial-gradient(circle at 30% 30%, #F472B6, #EC4899)',
+                'radial-gradient(circle at 30% 30%, #FBBF24, #F59E0B)'
+            ];
+            
+            const positions = [
+                { x: 15, y: 25 },
+                { x: 35, y: 15 },
+                { x: 55, y: 30 },
+                { x: 72, y: 20 },
+                { x: 20, y: 55 },
+                { x: 42, y: 50 },
+                { x: 65, y: 55 },
+                { x: 28, y: 75 },
+                { x: 50, y: 70 },
+                { x: 70, y: 75 }
+            ];
+            
+            products.forEach((p, i) => {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble-3d';
+                
+                const baseSize = 90;
+                const sizeMultiplier = Math.sqrt(p.count) / Math.sqrt(57);
+                const size = baseSize * sizeMultiplier;
+                
+                const pos = positions[i];
+                
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+                bubble.style.left = pos.x + '%';
+                bubble.style.top = pos.y + '%';
+                bubble.style.background = gradients[i % gradients.length];
+                bubble.style.fontSize = Math.max(size / 6, 11) + 'px';
+                
+                bubble.innerHTML = `
+                    <div class="bubble-name">${p.name}</div>
+                    <div class="bubble-data" style="font-weight: 700; font-size: 1.1em; margin-top: 0.2em;">${p.margin.toFixed(1)}%</div>
+                `;
+                
+                container.appendChild(bubble);
+            });
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'bubble' && document.getElementById('bubbleChart').children.length === 0) {
+                setTimeout(renderBubbleChart, 100);
+            }
+        }
+
+        Chart.defaults.color = 'rgba(224, 228, 230, 0.7)';
+        Chart.defaults.borderColor = 'rgba(22, 255, 187, 0.1)';
+
+        new Chart(document.getElementById('growthChart'), {
+            type: 'line',
+            data: {
+                labels: ['5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                datasets: [{
+                    label: '订单数',
+                    data: [9, 31, 53, 67, 66, 65, 60, 59],
+                    borderColor: '#16FFBB',
+                    backgroundColor: 'rgba(22, 255, 187, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointBackgroundColor: '#16FFBB',
+                    pointBorderColor: '#F0FCFF',
+                    pointBorderWidth: 2
+                }, {
+                    label: '利润(百元)',
+                    data: [4.48, 14.17, 21.83, 30.08, 21.45, 30.39, 27.34, 27.55],
+                    borderColor: '#29DDDA',
+                    backgroundColor: 'rgba(41, 221, 218, 0.2)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointHoverRadius: 9,
+                    pointBackgroundColor: '#29DDDA',
+                    pointBorderColor: '#F0FCFF',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                size: 13
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(22, 255, 187, 0.05)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['bx系列', 'H700系列', 'ub3系列', 'pill系列', 'pb系列', '其他'],
+                datasets: [{
+                    data: [139, 120, 70, 47, 35, 99],
+                    backgroundColor: [
+                        'rgba(22, 255, 187, 0.8)',
+                        'rgba(41, 221, 218, 0.8)',
+                        'rgba(55, 167, 231, 0.8)',
+                        'rgba(22, 255, 187, 0.6)',
+                        'rgba(41, 221, 218, 0.6)',
+                        'rgba(55, 167, 231, 0.6)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#091231',
+                    hoverOffset: 25,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#16FFBB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 13
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.parsed + '件 (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('paymentChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['支付宝', '微信'],
+                datasets: [{
+                    data: [284, 126],
+                    backgroundColor: [
+                        'rgba(55, 167, 231, 0.8)',
+                        'rgba(22, 255, 187, 0.8)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#091231',
+                    hoverOffset: 25,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#16FFBB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const data = [284, 126];
+                                const amounts = [65451, 27737];
+                                const avgAmounts = [230.5, 220.1];
+                                const total = data.reduce((a, b) => a + b, 0);
+                                const percentage = ((data[context.dataIndex] / total) * 100).toFixed(1);
+                                return [
+                                    context.label + ': ' + data[context.dataIndex] + '单 (' + percentage + '%)',
+                                    '总金额: ¥' + amounts[context.dataIndex].toLocaleString(),
+                                    '平均: ¥' + avgAmounts[context.dataIndex]
+                                ];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('conversionChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['成功引流', '未引流'],
+                datasets: [{
+                    data: [310, 100],
+                    backgroundColor: [
+                        'rgba(22, 255, 187, 0.8)',
+                        'rgba(224, 228, 230, 0.3)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#091231',
+                    hoverOffset: 25,
+                    hoverBorderWidth: 3,
+                    hoverBorderColor: '#16FFBB'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                size: 14
+                            },
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const data = [310, 100];
+                                const total = 410;
+                                const percentage = ((data[context.dataIndex] / total) * 100).toFixed(1);
+                                return context.label + ': ' + data[context.dataIndex] + '单 (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        renderProductTable();
+
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.method-card, .insight-card, .timeline-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
